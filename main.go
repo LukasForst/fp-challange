@@ -77,18 +77,20 @@ func prioritize(transactions []Transaction, totalTime int) []Transaction {
 }
 
 func main() {
-	timeLimit := 1000
 	latencies = loadLatencies("./latencies.json")
 	transactions := loadTransactions("./transactions.csv")
 
-	prioritized := prioritize(transactions, timeLimit)
+	for _, limit := range []int{50, 60, 90, 1000} {
+		prioritized := prioritize(transactions, limit)
+		totalAmount := 0.0
+		totalTime := 0
+		for _, transaction := range prioritized {
+			totalAmount += transaction.Amount
+			totalTime += latencies[transaction.BankCountryCode]
+		}
 
-	totalAmount := 0.0
-	totalTime := 0
-	for _, transaction := range prioritized {
-		totalAmount += transaction.Amount
-		totalTime += latencies[transaction.BankCountryCode]
+		fmt.Printf("-----------\nTime Limit: %d\nTotal Time Needed: %d\nTotal Amount: %.2f\n",
+			limit, totalTime, totalAmount,
+		)
 	}
-
-	fmt.Printf("Time Limit: %d\nTotal Time Needed: %d\nTotal Amount: %.2f", timeLimit, totalTime, totalAmount)
 }
